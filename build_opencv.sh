@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 # 2019 Michael de Gans
 
+
 set -e
 
 # change default constants here:
 readonly PREFIX=/usr/local  # install prefix, (can be ~/.local for a user install)
-readonly DEFAULT_VERSION=4.4.0  # controls the default version (gets reset by the first argument)
+readonly DEFAULT_VERSION=4.5.0  # controls the default version (gets reset by the first argument)
 readonly CPUS=$(nproc)  # controls the number of jobs
 
 # better board detection. if it has 6 or more cpus, it probably has a ton of ram too
@@ -54,7 +55,7 @@ install_dependencies () {
     # package repository or should already be installed (eg. CUDA).
     echo "Installing build dependencies."
     sudo apt-get update
-    sudo apt-get dist-upgrade -y --autoremove
+    #sudo apt-get dist-upgrade -y --autoremove
     sudo apt-get install -y \
         build-essential \
         cmake \
@@ -107,6 +108,7 @@ configure () {
         -D BUILD_opencv_python2=ON
         -D BUILD_opencv_python3=ON
         -D CMAKE_BUILD_TYPE=RELEASE
+        -DCMAKE_INSTALL_TYPE=Release
         -D CMAKE_INSTALL_PREFIX=${PREFIX}
         -D CUDA_ARCH_BIN=5.3,6.2,7.2
         -D CUDA_ARCH_PTX=
@@ -123,7 +125,11 @@ configure () {
         -D WITH_CUDNN=ON
         -D WITH_GSTREAMER=ON
         -D WITH_LIBV4L=ON
-        -D WITH_OPENGL=ON"
+        -D WITH_OPENGL=ON
+        -DBUILD_DOCS=OFF
+        -DBUILD_EXAMPLES=OFF
+        -DWITH_V4L=ON
+        "
 
     if [[ "$1" != "test" ]] ; then
         CMAKEFLAGS="
@@ -178,7 +184,7 @@ main () {
         sudo make install 2>&1 | tee -a install.log
     fi
 
-    cleanup --test-warning
+    #cleanup --test-warning
 
 }
 
